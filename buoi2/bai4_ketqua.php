@@ -1,9 +1,8 @@
 <?php
-// Khởi tạo các biến để giữ lại giá trị trên form và tránh lỗi
 $toan = "";
 $ly = "";
 $hoa = "";
-$diemchuan = "20"; // Có thể đặt điểm chuẩn mặc định là 20
+$diemchuan = "20";
 $tongdiem = "";
 $ketqua = "";
 
@@ -13,169 +12,153 @@ if (isset($_POST["xemketqua"])) {
     $hoa = trim($_POST["hoa"]);
     $diemchuan = trim($_POST["diemchuan"]);
 
-    // Kiểm tra dữ liệu đầu vào phải là số
+    // Kiểm tra dữ liệu phải là số
     if (is_numeric($toan) && is_numeric($ly) && is_numeric($hoa) && is_numeric($diemchuan)) {
-        // Tính tổng điểm
-        $tongdiem = $toan + $ly + $hoa;
-
-        // Kiểm tra kết quả (Không có môn nào điểm 0 và tổng điểm >= điểm chuẩn)
-        if ($toan > 0 && $ly > 0 && $hoa > 0 && $tongdiem >= $diemchuan) {
-            $ketqua = "Đậu";
-        } else {
-            $ketqua = "Rớt";
+        
+        // Ràng buộc điểm từng môn không được âm và không được lớn hơn 10 (Cho phép = 0)
+        if ($toan < 0 || $toan > 10 || $ly < 0 || $ly > 10 || $hoa < 0 || $hoa > 10) {
+            $tongdiem = "Lỗi";
+            $ketqua = "Lỗi: Điểm môn 0-10";
+        }
+        // Ràng buộc điểm chuẩn phải lớn hơn 0 và tối đa là 30
+        elseif ($diemchuan <= 0 || $diemchuan > 30) {
+            $tongdiem = "Lỗi";
+            $ketqua = "Lỗi: Chuẩn 1-30";
+        } 
+        // Hợp lệ thì tính tổng điểm và xét kết quả
+        else {
+            $tongdiem = $toan + $ly + $hoa;
+            
+            // Điều kiện đậu: Điểm các môn >= 0 (cho phép 0) và tổng điểm >= điểm chuẩn
+            if ($toan >= 0 && $ly >= 0 && $hoa >= 0 && $tongdiem >= $diemchuan) {
+                $ketqua = "Đậu";
+            } else {
+                $ketqua = "Rớt";
+            }
         }
     } else {
         $tongdiem = "Lỗi";
-        $ketqua = "Vui lòng nhập số!";
+        $ketqua = "Lỗi: Phải nhập số";
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kết quả thi đại học</title>
-
     <style>
-  
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5eef8; 
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            margin-top: 50px;
         }
 
         .form-container {
-            background-color: #ffffff;
-            width: 100%;
-            max-width: 450px;
-            padding: 35px 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.15); 
-            box-sizing: border-box;
+            background-color: #fae6fa; 
+            width: 380px;
+            border: 1px solid #dca3dc;
         }
 
         h2 {
-            text-align: center;
-            color: #9b59b6; 
-            margin-top: 0;
-            margin-bottom: 30px;
-            font-size: 24px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-
-        .input-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            flex: 0 0 130px;
-            font-weight: 600;
-            color: #555;
-            font-size: 15px;
-        }
-
-        .input-group input[type="text"] {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid #d7bde2; 
-            border-radius: 6px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-            background-color: #fff;
-        }
-
-        .input-group input[type="text"]:focus {
-            border-color: #9b59b6;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2); 
-        }
-
-        /* Làm nổi bật ô kết quả */
-        .input-group input[readonly] {
-            background-color: #f4ecf7; 
-            color: #8e44ad; 
-            font-weight: bold;
-            border-color: #ebdef0;
-            cursor: not-allowed;
-        }
-
-        /* Thiết kế nút bấm */
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background-color: #a569bd; 
+            background-color: #d8467b; 
             color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            margin-top: 15px;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            font-family: "Times New Roman", Times, serif;
+            font-style: italic;
+            font-size: 22px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: bold;
         }
 
-        .btn-submit:hover {
-            background-color: #8e44ad; 
+        table {
+            width: 100%;
+            padding: 10px 15px;
+            border-spacing: 0;
         }
 
-        .btn-submit:active {
-            transform: scale(0.98); 
+        td {
+            padding: 5px;
+        }
+
+        .label-text {
+            color: #834468; 
+            font-size: 15px;
+            font-weight: bold;
+            width: 120px;
+        }
+
+        input[type="text"] {
+            width: 200px;
+            padding: 3px;
+            border: 1px solid #a9a9a9;
+        }
+
+        .result-input {
+            background-color: #feffc0; 
+            color: red; 
+            font-weight: bold;
+        }
+
+        .btn-container {
+            text-align: center;
+            padding-top: 10px;
+            padding-bottom: 15px;
+        }
+
+        input[type="submit"] {
+            padding: 4px 15px;
+            background-color: #e0e0e0;
+            border: 1px solid #777;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        input[type="submit"]:active {
+            background-color: #ccc;
         }
     </style>
 </head>
-
 <body>
 
     <div class="form-container">
-        <form method="POST" action="bai4_ketqua.php">
-
-            <h2>KẾT QUẢ THI ĐẠI HỌC</h2>
-
-            <div class="input-group">
-                <label for="toan">Toán:</label>
-                <input type="text" id="toan" name="toan" value="<?php echo htmlspecialchars($toan); ?>" required>
+        <h2>Kết quả thi đại học</h2>
+        
+        <form method="POST" action="">
+            <table>
+                <tr>
+                    <td class="label-text">Toán:</td>
+                    <td><input type="text" name="toan" value="<?php echo htmlspecialchars($toan); ?>"></td>
+                </tr>
+                <tr>
+                    <td class="label-text">Lý:</td>
+                    <td><input type="text" name="ly" value="<?php echo htmlspecialchars($ly); ?>"></td>
+                </tr>
+                <tr>
+                    <td class="label-text">Hoá:</td>
+                    <td><input type="text" name="hoa" value="<?php echo htmlspecialchars($hoa); ?>"></td>
+                </tr>
+                <tr>
+                    <td class="label-text">Điểm chuẩn:</td>
+                    <td><input type="text" name="diemchuan" value="<?php echo htmlspecialchars($diemchuan); ?>"></td>
+                </tr>
+                <tr>
+                    <td class="label-text">Tổng điểm:</td>
+                    <td><input type="text" name="tongdiem" class="result-input" value="<?php echo htmlspecialchars($tongdiem); ?>" readonly></td>
+                </tr>
+                <tr>
+                    <td class="label-text">Kết quả thi:</td>
+                    <td><input type="text" name="ketqua" class="result-input" value="<?php echo htmlspecialchars($ketqua); ?>" readonly></td>
+                </tr>
+            </table>
+            
+            <div class="btn-container">
+                <input type="submit" name="xemketqua" value="Xem kết quả">
             </div>
-
-            <div class="input-group">
-                <label for="ly">Lý:</label>
-                <input type="text" id="ly" name="ly" value="<?php echo htmlspecialchars($ly); ?>" required>
-            </div>
-
-            <div class="input-group">
-                <label for="hoa">Hóa:</label>
-                <input type="text" id="hoa" name="hoa" value="<?php echo htmlspecialchars($hoa); ?>" required>
-            </div>
-
-            <div class="input-group">
-                <label for="diemchuan">Điểm chuẩn:</label>
-                <input type="text" id="diemchuan" name="diemchuan" value="<?php echo htmlspecialchars($diemchuan); ?>" required>
-            </div>
-
-            <div class="input-group">
-                <label for="tongdiem">Tổng điểm:</label>
-                <input type="text" id="tongdiem" name="tongdiem" value="<?php echo htmlspecialchars($tongdiem); ?>" readonly>
-            </div>
-
-            <div class="input-group">
-                <label for="ketqua">Kết quả thi:</label>
-                <input type="text" id="ketqua" name="ketqua" value="<?php echo htmlspecialchars($ketqua); ?>" readonly>
-            </div>
-
-            <button type="submit" name="xemketqua" class="btn-submit">XEM KẾT QUẢ</button>
-
         </form>
     </div>
 

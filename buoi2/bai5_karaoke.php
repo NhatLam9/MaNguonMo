@@ -1,204 +1,162 @@
 <?php
-// Khởi tạo các biến
 $gio_bat_dau = "";
 $gio_ket_thuc = "";
 $tien_thanh_toan = "";
-$thong_bao = "";
 
-// Kiểm tra form submit theo phương thức POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $gio_bat_dau = isset($_POST["gio_bat_dau"]) ? trim($_POST["gio_bat_dau"]) : "";
-    $gio_ket_thuc = isset($_POST["gio_ket_thuc"]) ? trim($_POST["gio_ket_thuc"]) : "";
+if (isset($_POST["tinh"])) {
+    $gio_bat_dau = trim($_POST["gio_bat_dau"]);
+    $gio_ket_thuc = trim($_POST["gio_ket_thuc"]);
 
-    // Kiểm tra dữ liệu nhập vào phải là số
+    // Kiểm tra dữ liệu phải là số
     if (is_numeric($gio_bat_dau) && is_numeric($gio_ket_thuc)) {
-        // Yêu cầu: Kiểm tra giờ kết thúc > giờ bắt đầu
-        if ($gio_ket_thuc > $gio_bat_dau) {
-            // Giới hạn giờ hoạt động từ 10h đến 24h
-            if ($gio_bat_dau >= 10 && $gio_ket_thuc <= 24) {
-                // Trường hợp 1: Hát hoàn toàn trong khung giờ 10h - 17h (20.000đ/h)
-                if ($gio_ket_thuc <= 17) {
-                    $tien_thanh_toan = ($gio_ket_thuc - $gio_bat_dau) * 20000;
-                } 
-                // Trường hợp 2: Hát hoàn toàn trong khung giờ 17h - 24h (45.000đ/h)
-                elseif ($gio_bat_dau >= 17) {
-                    $tien_thanh_toan = ($gio_ket_thuc - $gio_bat_dau) * 45000;
-                } 
-                // Trường hợp 3: Hát vắt ngang qua mốc 17h (ví dụ 15h đến 19h)
-                else {
-                    $tien_truoc_17h = (17 - $gio_bat_dau) * 20000;
-                    $tien_sau_17h = ($gio_ket_thuc - 17) * 45000;
-                    $tien_thanh_toan = $tien_truoc_17h + $tien_sau_17h;
-                }
-            } else {
-                $thong_bao = "Quán chỉ hoạt động từ 10h đến 24h (Giờ nghỉ: 24h - 10h).";
+        
+        // Ràng buộc chỉ nhận giờ trong khoảng 10h đến 24h
+        if ($gio_bat_dau < 10 || $gio_ket_thuc > 24 || $gio_bat_dau > 24 || $gio_ket_thuc < 10) {
+            $tien_thanh_toan = "Lỗi: Chỉ từ 10h - 24h";
+        } 
+        // Ràng buộc giờ kết thúc phải lớn hơn giờ bắt đầu
+        elseif ($gio_ket_thuc <= $gio_bat_dau) {
+            $tien_thanh_toan = "Lỗi: Giờ KT > Giờ BĐ";
+        } 
+        // Hợp lệ thì tiến hành tính tiền
+        else {
+            // Trường hợp 1: Hát hoàn toàn trước 17h
+            if ($gio_ket_thuc <= 17) {
+                $tien_thanh_toan = ($gio_ket_thuc - $gio_bat_dau) * 20000;
+            } 
+            // Trường hợp 2: Hát hoàn toàn từ 17h trở đi
+            elseif ($gio_bat_dau >= 17) {
+                $tien_thanh_toan = ($gio_ket_thuc - $gio_bat_dau) * 45000;
+            } 
+            // Trường hợp 3: Hát vắt ngang qua mốc 17h
+            else {
+                $tien_truoc_17h = (17 - $gio_bat_dau) * 20000;
+                $tien_sau_17h = ($gio_ket_thuc - 17) * 45000;
+                $tien_thanh_toan = $tien_truoc_17h + $tien_sau_17h;
             }
-        } else {
-            // Thông báo lỗi nếu giờ kết thúc <= giờ bắt đầu
-            $thong_bao = "Giờ kết thúc phải > Giờ bắt đầu"; 
         }
     } else {
-        $thong_bao = "Vui lòng nhập giờ là một số hợp lệ.";
+        $tien_thanh_toan = "Lỗi: Phải nhập số";
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tính Tiền Karaoke</title>
+    <title>Tính tiền Karaoke</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fef9e7; 
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            margin-top: 50px;
         }
 
         .form-container {
-            background-color: #ffffff;
-            width: 100%;
-            max-width: 480px;
-            padding: 35px 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(243, 156, 18, 0.15); /* Bóng đổ ám vàng */
-            box-sizing: border-box;
+            background-color: #1abc9c; 
+            width: 400px;
+            border: 1px solid #16a085;
         }
 
         h2 {
-            text-align: center;
-            color: #d68910; 
-            margin-top: 0;
-            margin-bottom: 25px;
-            font-size: 24px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .form-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            flex: 0 0 135px;
-            font-weight: 600;
-            color: #555;
-            font-size: 15px;
-        }
-
-        .form-group input[type="text"] {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid #f8c471; 
-            border-radius: 6px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .form-group input[type="text"]:focus {
-            border-color: #f39c12;
-            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.2);
-        }
-
-        .form-group span {
-            flex: 0 0 45px;
-            text-align: right;
-            color: #888;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .readonly-input {
-            background-color: #fcf3cf !important; 
-            color: #c0392b !important; 
-            font-weight: bold;
-            cursor: not-allowed;
-            border-color: #f5b041 !important;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background-color: #f39c12; 
+            background-color: #16a085; 
             color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-submit:hover {
-            background-color: #d68910; 
-        }
-
-        .btn-submit:active {
-            transform: scale(0.98);
-        }
-
-        /* Hiển thị lỗi báo đỏ */
-        .error-message {
-            background-color: #fadbd8;
-            color: #c0392b;
             text-align: center;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 20px;
+            margin: 0;
+            padding: 10px;
+            font-family: "Times New Roman", Times, serif;
+            font-style: italic;
+            font-size: 22px;
+            text-transform: uppercase;
             font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            padding: 10px 15px;
+            border-spacing: 0;
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        .label-text {
+            color: #2c3e50;
+            font-size: 15px;
+            width: 120px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 170px;
+            padding: 3px;
+            border: 1px solid #a9a9a9;
+        }
+
+        .unit {
             font-size: 14px;
-            border: 1px solid #f5b7b1;
+            color: #2c3e50;
+            width: 50px;
+            font-weight: bold;
+        }
+
+        /* Thêm chữ đỏ in đậm cho ô kết quả để đồng bộ */
+        .result-input {
+            background-color: #ffffe0; 
+            color: red; 
+            font-weight: bold;
+        }
+
+        .btn-container {
+            text-align: center;
+            padding-bottom: 15px;
+        }
+
+        input[type="submit"] {
+            padding: 4px 15px;
+            background-color: #e0e0e0;
+            border: 1px solid #777;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        input[type="submit"]:active {
+            background-color: #ccc;
         }
     </style>
 </head>
 <body>
 
-<div class="form-container">
-    <h2>TÍNH TIỀN KARAOKE</h2>
-    
-    <!-- Giữ nguyên action như yêu cầu -->
-    <form action="bai5_karaoke.php" method="POST">
+    <div class="form-container">
+        <h2>Tính tiền karaoke</h2>
         
-        <div class="form-group">
-            <label for="gio_bat_dau">Giờ bắt đầu:</label>
-            <input type="text" name="gio_bat_dau" id="gio_bat_dau" value="<?php echo htmlspecialchars($gio_bat_dau); ?>" required>
-            <span>(h)</span>
-        </div>
-        
-        <div class="form-group">
-            <label for="gio_ket_thuc">Giờ kết thúc:</label>
-            <input type="text" name="gio_ket_thuc" id="gio_ket_thuc" value="<?php echo htmlspecialchars($gio_ket_thuc); ?>" required>
-            <span>(h)</span>
-        </div>
-        
-        <div class="form-group">
-            <label for="tien_thanh_toan">Tiền thanh toán:</label>
-            <input type="text" name="tien_thanh_toan" id="tien_thanh_toan" class="readonly-input" value="<?php echo htmlspecialchars($tien_thanh_toan); ?>" readonly>
-            <span>(VNĐ)</span>
-        </div>
-        
-        <button type="submit" class="btn-submit">TÍNH TIỀN</button>
-
-        <?php if (!empty($thong_bao)): ?>
-            <div class="error-message">
-                <?php echo $thong_bao; ?>
+        <form method="POST" action="">
+            <table>
+                <tr>
+                    <td class="label-text">Giờ bắt đầu:</td>
+                    <td><input type="text" name="gio_bat_dau" value="<?php echo htmlspecialchars($gio_bat_dau); ?>"></td>
+                    <td class="unit">(h)</td>
+                </tr>
+                <tr>
+                    <td class="label-text">Giờ kết thúc:</td>
+                    <td><input type="text" name="gio_ket_thuc" value="<?php echo htmlspecialchars($gio_ket_thuc); ?>"></td>
+                    <td class="unit">(h)</td>
+                </tr>
+                <tr>
+                    <td class="label-text">Tiền thanh toán:</td>
+                    <td><input type="text" name="tien_thanh_toan" class="result-input" value="<?php echo htmlspecialchars($tien_thanh_toan); ?>" readonly></td>
+                    <td class="unit">(VNĐ)</td>
+                </tr>
+            </table>
+            
+            <div class="btn-container">
+                <input type="submit" name="tinh" value="Tính tiền">
             </div>
-        <?php endif; ?>
-        
-    </form>
-</div>
+        </form>
+    </div>
 
 </body>
 </html>
