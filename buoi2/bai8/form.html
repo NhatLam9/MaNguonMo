@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter Your Information</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+        }
+        fieldset { 
+            width: 500px; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+        }
+        legend { 
+            font-weight: bold; 
+        }
+        table td { 
+            padding: 5px; 
+            vertical-align: top; 
+        }
+        .buttons { 
+            margin-top: 10px; 
+        }
+    </style>
+</head>
+<body>
+
+<fieldset>
+    <legend>Enter Your Information</legend>
+    <form action="config.php" method="POST">
+        <table>
+            <tr>
+                <td>Fullname</td>
+                <td><input type="text" name="fullname" size="30"></td>
+            </tr>
+            <tr>
+                <td>Address</td>
+                <td><input type="text" name="address" size="30"></td>
+            </tr>
+            <tr>
+                <td>Phone</td>
+                <td><input type="text" name="phone" size="30"></td>
+            </tr>
+            <tr>
+                <td>Gender</td>
+                <td>
+                    <input type="radio" name="gender" checked> Nam 
+                    <input type="radio" name="gender"> Nữ
+                </td>
+            </tr>
+            <tr>
+                <td>Country</td>
+                <td>
+                    <select name="country">
+                        <option value="Việt Nam">Việt Nam</option>
+                        <option value="Mỹ">Mỹ</option>
+                        <option value="Nhật Bản">Nhật Bản</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Study</td>
+                <td>
+                    <input type="checkbox" name="study[]" value="PHP & MySQL" checked> PHP & MySQL 
+                    <input type="checkbox" name="study[]" value="ASP.NET" checked> ASP.NET 
+                    <input type="checkbox" name="study[]" value="CCNA" checked> CCNA 
+                    <input type="checkbox" name="study[]" value="Security+" checked> Security+
+                </td>
+            </tr>
+            <tr>
+                <td>Note</td>
+                <td><textarea name="note" rows="4" cols="45"></textarea></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="buttons">
+                    <input type="submit" value="Gửi">
+                    <input type="reset" value="Hủy">
+                </td>
+            </tr>
+        </table>
+    </form>
+</fieldset>
+
+</body>
+</html>
